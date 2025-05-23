@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ConsultarVault - Gestor de Contraseñas</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <link rel="stylesheet" href="assets/css/principal.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+  <div class="topbar">
+    <div class="logo-container">
+      <div class="logo">
+        <i data-lucide="shield-lock" size="24"></i>
+        <a href="https://consultar.org">
+          <img src="img/logo consultar2.png" alt="" style="width: 40px; height: 40px; margin-top:10px;">
+        </a>
+        <span>ConsultarVault</span>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <div class="user-info">
+        <span id="userEmail"></span>
+      </div>
+      <button class="btn btn-danger" onclick="logout()">
+        <i data-lucide="log-out" size="16"></i>
+        <p style="padding-left: 10px;"></p>
+        <span>Cerrar sesión</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="container main-content">
+    <div class="password-grid">
+      <!-- generador de contraseña -->
+      <div class="card">
+        <div class="card-header">
+          <h2><i data-lucide="key-round" size="20"></i> Generador de Contraseñas</h2>
+        </div>
+        
+        <div class="password-generator">
+          <div class="generated-password-container">
+            <input type="text" id="generatedPassword" class="form-control" placeholder="Tu contraseña segura" readonly>
+            <button id="copyPasswordBtn" class="copy-btn" style="display: none;">
+              <i data-lucide="copy" size="18"></i>
+            </button>
+          </div>
+          
+          <div class="range-container">
+            <div class="range-header">
+              <label for="lengthRange">Longitud:</label>
+              <span id="lengthValue">8</span>
+            </div>
+            <input type="range" id="lengthRange" min="8" max="24" value="8">
+          </div>
+          
+          <div class="strength-meter-container">
+            <div class="range-header">
+              <label>Seguridad:</label>
+              <span id="strengthText" class="strength-medium">Moderada</span>
+            </div>
+            <progress id="strengthMeter" value="50" max="100" class="strength-meter"></progress>
+          </div>
+          
+          <div class="options-container">
+            <label class="option-checkbox">
+              <input type="checkbox" name="uppercase" checked>
+              <span>Mayúsculas (A-Z)</span>
+            </label>
+            <label class="option-checkbox">
+              <input type="checkbox" name="lowercase" checked>
+              <span>Minúsculas (a-z)</span>
+            </label>
+            <label class="option-checkbox">
+              <input type="checkbox" name="numbers" checked>
+              <span>Números (0-9)</span>
+            </label>
+            <label class="option-checkbox">
+              <input type="checkbox" name="symbols" checked>
+              <span>Símbolos (!@#$)</span>
+            </label>
+          </div>
+          
+          <button class="btn btn-primary" onclick="generatePassword()">
+            <i data-lucide="refresh-cw" size="16"></i>
+            <p style="padding-left: 10px;"></p>
+            Generar Contraseña
+          </button>
+        </div>
+      </div>
+      
+      <!-- administrador de contra -->
+      <div class="card">
+        <div class="card-header">
+          <h2><i data-lucide="lock" size="20"></i> Gestor de Contraseñas</h2>
+        </div>
+        
+        <div id="passwordSection">
+          <div class="form-group">
+            <input type="text" id="site" class="form-control" placeholder="Sitio web (opcional)">
+          </div>
+          <div class="form-group">
+            <input type="text" id="username" class="form-control" placeholder="Nombre de usuario">
+          </div>
+          <div class="form-group">
+            <input type="password" id="password" class="form-control" placeholder="Contraseña">
+          </div>
+          <button class="btn btn-primary" onclick="savePassword()">
+            <i data-lucide="save" size="16"></i>
+            <p style="padding-left: 10px;"></p>
+            Guardar Contraseña
+          </button>
+          
+          <button id="togglePasswordListBtn" class="toggle-passwords-btn">
+            <span>Mostrar contraseñas guardadas</span>
+            <i class="toggle-icon" data-lucide="chevron-down" size="16"></i>
+          </button>
+          
+          <div id="passwordListContainer" style="display: none;">
+            <div id="emptyState" class="empty-state">
+              <i data-lucide="file-box" size="48"></i>
+              <p>No hay contraseñas guardadas</p>
+              <p>Agregue sus primeras credenciales utilizando el formulario de arriba</p>
+            </div>
+            <div id="passwordList" class="password-list"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- editar -->
+  <div id="editModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Editar Contraseña</h2>
+        <button class="close-btn" onclick="closeModal()">
+          <i data-lucide="x" size="20"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="editIndex">
+        <div class="form-group">
+          <label for="editSite">Sitio</label>
+          <input type="text" id="editSite" class="form-control" placeholder="Sitio web (opcional)">
+        </div>
+        <div class="form-group">
+          <label for="editUser">Usuario</label>
+          <input type="text" id="editUser" class="form-control" placeholder="Nombre de usuario">
+        </div>
+        <div class="form-group">
+          <label for="editPassword">Contraseña</label>
+          <input type="password" id="editPassword" class="form-control" placeholder="Contraseña">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal()">Cancelar</button>
+        <button class="btn btn-primary" onclick="saveEditedPassword()">Guardar Cambios</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- borrar  -->
+  <div id="deleteModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Confirmar Eliminación</h2>
+        <button class="close-btn" onclick="closeModal()">
+          <i data-lucide="x" size="20"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="deleteIndex">
+        <p>¿Está seguro de que desea eliminar esta contraseña?</p>
+        <p>Esta acción no se puede deshacer.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal()">Cancelar</button>
+        <button class="btn btn-danger" onclick="deletePassword()">Eliminar</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- toast -->
+  <div id="toast" class="toast"></div>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/11.8.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.8.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.8.1/firebase-database-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBeiQRMnfl9I8yoOLWSi_tGzMeElIZnUgk",
+      authDomain: "gestor-contrasenas.firebaseapp.com",
+      projectId: "gestor-contrasenas",
+      storageBucket: "gestor-contrasenas.appspot.com",
+      messagingSenderId: "320322334401",
+      appId: "1:320322334401:web:ee5517a7c372ff7b1e6e40",
+      measurementId: "G-R2NZMJC3YR",
+      databaseURL: "https://gestor-contrasenas-default-rtdb.firebaseio.com"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+  </script>
+
+ <script>
+(function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...arguments)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(arguments)};window.chatbase=new Proxy(window.chatbase,{get(target,prop){if(prop==="q"){return target.q}return(...args)=>target(prop,...args)}})}const onLoad=function(){const script=document.createElement("script");script.src="https://www.chatbase.co/embed.min.js";script.id="CJFh-u5Nd0W1es6dcCRNd";script.domain="www.chatbase.co";document.body.appendChild(script)};if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();
+</script>
+
+  
+  <style>
+ 
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 1100;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .modal.show {
+      opacity: 1;
+    }
+    
+    .modal-content {
+      background-color: white;
+      border-radius: 0.75rem;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+      transform: translateY(20px);
+      transition: transform 0.3s ease;
+    }
+    
+    .modal.show .modal-content {
+      transform: translateY(0);
+    }
+    
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.25rem;
+      border-bottom: 1px solid var(--gray-200);
+    }
+    
+    .modal-body {
+      padding: 1.25rem;
+    }
+    
+    .modal-footer {
+      padding: 1.25rem;
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+      border-top: 1px solid var(--gray-200);
+    }
+    
+    .close-btn {
+      background: none;
+      border: none;
+      color: var(--gray-500);
+      padding: 0.25rem;
+      border-radius: 0.25rem;
+      cursor: pointer;
+    }
+    
+    .close-btn:hover {
+      background-color: var(--gray-100);
+      color: var(--gray-700);
+    }
+    
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background-color: white;
+      border-radius: 0.5rem;
+      padding: 1rem 1.5rem;
+      box-shadow: var(--shadow-lg);
+      z-index: 1200;
+      transition: transform 0.3s ease;
+      opacity: 0;
+    }
+    
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+    
+    .toast-success {
+      border-left: 4px solid var(--success);
+    }
+    
+    .toast-error {
+      border-left: 4px solid var(--danger);
+    }
+    
+   
+    .strength-meter {
+      width: 100%;
+      height: 8px;
+      border-radius: 4px;
+      -webkit-appearance: none;
+    }
+    
+    .strength-meter::-webkit-progress-bar {
+      background-color: var(--gray-200);
+      border-radius: 4px;
+    }
+    
+    .strength-meter::-webkit-progress-value {
+      border-radius: 4px;
+      background: linear-gradient(90deg, #ef4444 0%, #f59e0b 50%, #10b981 100%);
+    }
+    
+    .strength-weak {
+      color: #ef4444;
+    }
+    
+    .strength-medium {
+      color: #f59e0b;
+    }
+    
+    .strength-strong {
+      color: #10b981;
+    }
+    
+    /* animacion de generador de contra */
+    @keyframes highlight {
+      0% {
+        background-color: rgba(37, 99, 235, 0.1);
+      }
+      100% {
+        background-color: transparent;
+      }
+    }
+    
+    .highlight-animation {
+      animation: highlight 1s ease-out;
+    }
+    
+    /* animacion para pagina entera  */
+    @keyframes fade-out {
+      from {
+        opacity: 1;
+      }
+      to {
+        opacity: 0;
+      }
+    }
+    
+    .fade-out {
+      animation: fade-out 0.3s ease-out forwards;
+    }
+    
+  
+    .tooltip {
+      position: fixed;
+      background-color: var(--gray-800);
+      color: white;
+      padding: 0.5rem 0.75rem;
+      border-radius: 0.25rem;
+      font-size: 0.75rem;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      z-index: 1300;
+    }
+    
+    .tooltip:after {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-top: 5px solid var(--gray-800);
+    }
+    
+    .tooltip.show {
+      opacity: 0.9;
+    }
+  </style>
+  
+  <script src="assets/js/principal.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+    });
+  </script>
+</body>
+</html>
