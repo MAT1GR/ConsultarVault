@@ -2,11 +2,103 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="icon" type="image/svg+xml" href="/img/logo consultar2.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Password Manager Redesign</title>
+    <title>ConsultarVault</title>
   </head>
   <body>
+     
+    <!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ConsultarVault - Gestor de Contraseñas</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <link rel="stylesheet" href="assets/css/login.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-card">
+      <div class="login-header">
+        <div class="logo">
+          <i data-lucide="shield-lock" size="28"></i>
+          <a href="https://consultar.org/">
+            <img src="img/logo consultar2.png"  style="height: 50px; width: 50px;">
+          </a>
+          <span>ConsultarVault</span>
+        </div>
+        <h1>Bienvenido a su gestor de contraseñas</h1>
+        <p class="text-center">Mantenga sus credenciales seguras y organizadas</p>
+      </div>
+      
+      <div class="tab-container">
+        <div id="loginTab" class="tab active">Iniciar Sesión</div>
+        <div id="registerTab" class="tab">Registrarse</div>
+      </div>
+      
+      <div id="loginContent" class="tab-content active">
+        <div class="login-form">
+          <div class="form-group">
+            <input type="email" id="email" class="form-input" placeholder="Correo electrónico" />
+          </div>
+          <div class="form-group">
+            <input type="password" id="password" class="form-input" placeholder="Contraseña" />
+          </div>
+          <button class="btn btn-primary btn-block" onclick="login()">Iniciar sesión</button>
+        </div>
+      </div>
+      
+      <div id="registerContent" class="tab-content">
+        <div class="login-form">
+          <div class="form-group">
+            <input type="email" id="regEmail" class="form-input" placeholder="Nuevo correo electrónico" />
+          </div>
+          <div class="form-group">
+            <input type="password" id="regPassword" class="form-input" placeholder="Nueva contraseña" />
+          </div>
+          <button class="btn btn-accent btn-block" onclick="signup()">Crear cuenta</button>
+        </div>
+      </div>
+      
+      <div id="mensaje" class="form-message"></div>
+      
+      <div class="login-footer">
+        <p>Su seguridad es nuestra prioridad</p>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/11.8.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.8.1/firebase-auth-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBeiQRMnfl9I8yoOLWSi_tGzMeElIZnUgk",
+      authDomain: "gestor-contrasenas.firebaseapp.com",
+      projectId: "gestor-contrasenas",
+      storageBucket: "gestor-contrasenas.appspot.com",
+      messagingSenderId: "320322334401",
+      appId: "1:320322334401:web:ee5517a7c372ff7b1e6e40",
+      measurementId: "G-R2NZMJC3YR"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+  </script>
+  
+  <script src="assets/js/login.js"></script>
+  <script>
+    // iniciar Lucide icons
+    document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+    });
+  </script>
+</body>
+</html>
+
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
