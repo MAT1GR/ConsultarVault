@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function checkAuthState() {
   firebase.auth().onAuthStateChanged(function(user) {
     if (!user) {
-      window.location.href = "login.html";
+      window.location.href = "index.html";
     } else {
       // Update UI with user info
       document.getElementById('userEmail').textContent = user.email;
@@ -492,7 +492,7 @@ window.logout = function() {
   
   setTimeout(() => {
     firebase.auth().signOut().then(() => {
-      window.location.href = "login.html";
+      window.location.href = "index.html";
     });
   }, 300);
 };
